@@ -1,4 +1,4 @@
-﻿package com.todoteg.cerrajeria.model;
+package com.todoteg.cerrajeria.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

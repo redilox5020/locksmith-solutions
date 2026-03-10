@@ -1,4 +1,4 @@
-﻿package com.todoteg.cerrajeria.config;
+package com.todoteg.cerrajeria.config;
 
 import com.todoteg.cerrajeria.model.*;
 import com.todoteg.cerrajeria.repository.*;

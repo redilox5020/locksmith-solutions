@@ -1,4 +1,4 @@
-﻿package com.todoteg.cerrajeria.repository;
+package com.todoteg.cerrajeria.repository;
 
 import com.todoteg.cerrajeria.model.PublicationLike;
 import org.springframework.data.jpa.repository.JpaRepository;

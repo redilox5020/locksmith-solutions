@@ -1,4 +1,4 @@
-﻿package com.todoteg.cerrajeria.repository;
+package com.todoteg.cerrajeria.repository;
 
 import com.todoteg.cerrajeria.model.Publication;
 import org.springframework.data.domain.Page;
