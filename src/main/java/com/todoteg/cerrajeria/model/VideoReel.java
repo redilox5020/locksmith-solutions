@@ -1,4 +1,4 @@
-package com.todoteg.cerrajeria.model;
+﻿package com.todoteg.cerrajeria.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -29,8 +29,8 @@ public class VideoReel {
     private String username;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "promotion_id", nullable = false)
-    private Promotion promotion;
+    @JoinColumn(name = "publication_id", nullable = false)
+    private Publication publication;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -40,3 +40,4 @@ public class VideoReel {
         createdAt = LocalDateTime.now();
     }
 }
+

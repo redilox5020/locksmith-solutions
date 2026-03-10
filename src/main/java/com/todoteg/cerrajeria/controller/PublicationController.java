@@ -1,8 +1,8 @@
-package com.todoteg.cerrajeria.controller;
+﻿package com.todoteg.cerrajeria.controller;
 
 import com.todoteg.cerrajeria.dto.*;
 import com.todoteg.cerrajeria.model.UserProfile;
-import com.todoteg.cerrajeria.service.PromotionService;
+import com.todoteg.cerrajeria.service.PublicationService;
 import com.todoteg.cerrajeria.service.VideoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,20 +19,20 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-public class PromotionController {
+public class PublicationController {
 
-    private final PromotionService promotionService;
+    private final PublicationService publicationService;
     private final VideoService videoService;
 
-    // === PROMOTIONS (público) ===
+    // === PUBLICATIONS (público) ===
 
-    @GetMapping("/promotions")
-    public ResponseEntity<List<PromotionDTO>> getAllPromotions() {
-        return ResponseEntity.ok(promotionService.getAllPromotionsList());
+    @GetMapping("/publications")
+    public ResponseEntity<List<PublicationDTO>> getAllPublications() {
+        return ResponseEntity.ok(publicationService.getAllPublicationsList());
     }
 
-    @GetMapping("/promotions/paged")
-    public ResponseEntity<Page<PromotionDTO>> getPromotionsPaged(
+    @GetMapping("/publications/paged")
+    public ResponseEntity<Page<PublicationDTO>> getPublicationsPaged(
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(name = "page_size", defaultValue = "6") int pageSize,
@@ -44,33 +44,33 @@ public class PromotionController {
             default -> Sort.by(Sort.Direction.DESC, "createdAt");
         };
         Pageable pageable = PageRequest.of(page, pageSize, sort);
-        return ResponseEntity.ok(promotionService.getAllPromotions(search, pageable));
+        return ResponseEntity.ok(publicationService.getAllPublications(search, pageable));
     }
 
-    @GetMapping("/promotions/{id}")
-    public ResponseEntity<PromotionDTO> getPromotion(@PathVariable Long id) {
-        return ResponseEntity.ok(promotionService.getPromotionById(id));
+    @GetMapping("/publications/{id}")
+    public ResponseEntity<PublicationDTO> getPublication(@PathVariable Long id) {
+        return ResponseEntity.ok(publicationService.getPublicationById(id));
     }
 
-    @PostMapping("/promotions/{id}/like")
+    @PostMapping("/publications/{id}/like")
     public ResponseEntity<Map<String, Object>> toggleLike(@PathVariable Long id) {
         UserProfile user = (UserProfile) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(promotionService.toggleLike(id, user.getId()));
+        return ResponseEntity.ok(publicationService.toggleLike(id, user.getId()));
     }
 
-    @PostMapping("/promotions/{id}/comments")
+    @PostMapping("/publications/{id}/comments")
     public ResponseEntity<CommentDTO> addComment(
             @PathVariable Long id,
             @Valid @RequestBody CommentCreateRequest request) {
         UserProfile user = (UserProfile) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(promotionService.addComment(id, user.getId(), request));
+        return ResponseEntity.ok(publicationService.addComment(id, user.getId(), request));
     }
 
     // === TAGS (público) ===
 
     @GetMapping("/tags")
     public ResponseEntity<List<TagDTO>> getAllTags() {
-        return ResponseEntity.ok(promotionService.getAllTags());
+        return ResponseEntity.ok(publicationService.getAllTags());
     }
 
     // === VIDEOS (público) ===
@@ -80,3 +80,4 @@ public class PromotionController {
         return ResponseEntity.ok(videoService.getAllVideos());
     }
 }
+

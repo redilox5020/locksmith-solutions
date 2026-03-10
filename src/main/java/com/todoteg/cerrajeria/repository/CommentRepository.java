@@ -1,4 +1,4 @@
-package com.todoteg.cerrajeria.repository;
+﻿package com.todoteg.cerrajeria.repository;
 
 import com.todoteg.cerrajeria.model.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    List<Comment> findByPromotionIdOrderByIdDesc(Long promotionId);
+    List<Comment> findByPublicationIdOrderByIdDesc(Long publicationId);
 }
+

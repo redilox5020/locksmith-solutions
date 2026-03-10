@@ -1,4 +1,4 @@
-package com.todoteg.cerrajeria.dto;
+﻿package com.todoteg.cerrajeria.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -19,5 +19,6 @@ public class VideoCreateRequest {
     private String username;
 
     @NotNull
-    private Long promotionId;
+    private Long publicationId;
 }
+

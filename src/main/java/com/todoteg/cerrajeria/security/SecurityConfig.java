@@ -1,4 +1,4 @@
-package com.todoteg.cerrajeria.security;
+﻿package com.todoteg.cerrajeria.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -43,7 +43,7 @@ public class SecurityConfig {
                 // Públicos
                 .requestMatchers("/login", "/refresh", "/user/").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/promotions/**", "/videos/**", "/tags/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/publications/**", "/videos/**", "/tags/**").permitAll()
                 // Admin
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 // Autenticado
@@ -83,3 +83,4 @@ public class SecurityConfig {
         return source;
     }
 }
+

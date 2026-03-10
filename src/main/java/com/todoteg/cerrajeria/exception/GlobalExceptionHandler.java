@@ -72,4 +72,11 @@ public class GlobalExceptionHandler {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(ApiResponseDTO.error("Error interno del servidor: " + ex.getMessage()));
     }
+
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponseDTO<Void>> handleDataIntegrityViolation(org.springframework.dao.DataIntegrityViolationException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(ApiResponseDTO.error("No se puede eliminar la publicación porque está vinculada a un Video Reel. Por favor, elimine o desvincule el video primero."));
+    }
 }

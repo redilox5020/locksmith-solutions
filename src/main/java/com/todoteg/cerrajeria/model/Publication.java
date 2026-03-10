@@ -1,4 +1,4 @@
-package com.todoteg.cerrajeria.model;
+﻿package com.todoteg.cerrajeria.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "ck_promotion")
+@Table(name = "ck_publication")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Promotion {
+public class Publication {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,7 @@ public class Promotion {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String price;
 
     @Column(name = "original_price")
@@ -58,23 +58,27 @@ public class Promotion {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PromotionImage> images = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private UserProfile user;
+
+    @OneToMany(mappedBy = "publication", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PublicationImage> images = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
-        name = "ck_promotion_tag",
-        joinColumns = @JoinColumn(name = "promotion_id"),
+        name = "ck_publication_tag",
+        joinColumns = @JoinColumn(name = "publication_id"),
         inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private Set<Tag> tags = new HashSet<>();
 
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "publication", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PromotionLike> likesDetail = new ArrayList<>();
+    @OneToMany(mappedBy = "publication", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PublicationLike> likesDetail = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
@@ -104,3 +108,4 @@ public class Promotion {
         }
     }
 }
+

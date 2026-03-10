@@ -1,4 +1,4 @@
-package com.todoteg.cerrajeria.service;
+﻿package com.todoteg.cerrajeria.service;
 
 import com.todoteg.cerrajeria.dto.*;
 import com.todoteg.cerrajeria.exception.ResourceNotFoundException;
@@ -16,70 +16,70 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PromotionService {
+public class PublicationService {
 
-    private final PromotionRepository promotionRepository;
-    private final PromotionImageRepository imageRepository;
+    private final PublicationRepository publicationRepository;
+    private final PublicationImageRepository imageRepository;
     private final TagRepository tagRepository;
     private final CommentRepository commentRepository;
-    private final PromotionLikeRepository likeRepository;
+    private final PublicationLikeRepository likeRepository;
     private final UserProfileRepository userRepository;
     private final FileStorageService fileStorageService;
 
     // === PUBLIC ===
 
     @Transactional(readOnly = true)
-    public Page<PromotionDTO> getAllPromotions(String search, Pageable pageable) {
-        Page<Promotion> promotions;
+    public Page<PublicationDTO> getAllPublications(String search, Pageable pageable) {
+        Page<Publication> publications;
         if (search != null && !search.isEmpty()) {
-            promotions = promotionRepository.search(search, pageable);
+            publications = publicationRepository.search(search, pageable);
         } else {
-            promotions = promotionRepository.findAll(pageable);
+            publications = publicationRepository.findAll(pageable);
         }
-        return promotions.map(this::toDTO);
+        return publications.map(this::toDTO);
     }
 
     @Transactional(readOnly = true)
-    public List<PromotionDTO> getAllPromotionsList() {
-        return promotionRepository.findAll().stream()
+    public List<PublicationDTO> getAllPublicationsList() {
+        return publicationRepository.findAll().stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public PromotionDTO getPromotionById(Long id) {
-        Promotion promotion = findById(id);
-        return toDTO(promotion);
+    public PublicationDTO getPublicationById(Long id) {
+        Publication publication = findById(id);
+        return toDTO(publication);
     }
 
     @Transactional
-    public Map<String, Object> toggleLike(Long promotionId, Long userId) {
-        Promotion promotion = findById(promotionId);
-        Optional<PromotionLike> existingLike = likeRepository.findByPromotionIdAndUserId(promotionId, userId);
+    public Map<String, Object> toggleLike(Long publicationId, Long userId) {
+        Publication publication = findById(publicationId);
+        Optional<PublicationLike> existingLike = likeRepository.findByPublicationIdAndUserId(publicationId, userId);
 
         if (existingLike.isPresent()) {
             likeRepository.delete(existingLike.get());
-            promotion.setLikes(Math.max(0, promotion.getLikes() - 1));
+            publication.setLikes(Math.max(0, publication.getLikes() - 1));
         } else {
             UserProfile user = userRepository.findById(userId)
                     .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-            PromotionLike like = new PromotionLike();
+            PublicationLike like = new PublicationLike();
             like.setUser(user);
-            like.setPromotion(promotion);
+            like.setPublication(publication);
             likeRepository.save(like);
-            promotion.setLikes(promotion.getLikes() + 1);
+            publication.setLikes(publication.getLikes() + 1);
         }
-        promotionRepository.save(promotion);
+        publicationRepository.save(publication);
 
         Map<String, Object> result = new HashMap<>();
-        result.put("likes", promotion.getLikes());
+        result.put("likes", publication.getLikes());
         result.put("liked", existingLike.isEmpty());
         return result;
     }
 
     @Transactional
-    public CommentDTO addComment(Long promotionId, Long userId, CommentCreateRequest request) {
-        Promotion promotion = findById(promotionId);
+    public CommentDTO addComment(Long publicationId, Long userId, CommentCreateRequest request) {
+        Publication publication = findById(publicationId);
         UserProfile user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
@@ -88,7 +88,7 @@ public class PromotionService {
         comment.setText(request.getText());
         comment.setDate(LocalDate.now().toString());
         comment.setUser(user);
-        comment.setPromotion(promotion);
+        comment.setPublication(publication);
 
         comment = commentRepository.save(comment);
 
@@ -98,86 +98,90 @@ public class PromotionService {
     // === ADMIN ===
 
     @Transactional
-    public PromotionDTO createPromotion(PromotionCreateRequest request) {
-        Promotion promotion = new Promotion();
-        promotion.setTitle(request.getTitle());
-        promotion.setDescription(request.getDescription());
-        promotion.setPrice(request.getPrice());
-        promotion.setOriginalPrice(request.getOriginalPrice());
-        promotion.setDiscount(request.getDiscount());
-        promotion.setWhatsappMessage(request.getWhatsappMessage() != null
+    public PublicationDTO createPublication(PublicationCreateRequest request, Long userId) {
+        UserProfile user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        Publication publication = new Publication();
+        publication.setUser(user);
+        publication.setTitle(request.getTitle());
+        publication.setDescription(request.getDescription());
+        publication.setPrice(request.getPrice());
+        publication.setOriginalPrice(request.getOriginalPrice());
+        publication.setDiscount(request.getDiscount());
+        publication.setWhatsappMessage(request.getWhatsappMessage() != null
                 ? request.getWhatsappMessage()
                 : "Hola! Me interesa: " + request.getTitle());
-        promotion.setIsNew(request.getIsNew() != null && request.getIsNew());
-        promotion.setLikes(0);
+        publication.setIsNew(request.getIsNew() != null && request.getIsNew());
+        publication.setLikes(0);
 
         // Tags
         if (request.getTags() != null) {
             Set<Tag> tags = resolveOrCreateTags(request.getTags());
-            promotion.setTags(tags);
+            publication.setTags(tags);
         }
 
-        promotion = promotionRepository.save(promotion);
+        publication = publicationRepository.save(publication);
 
         // Images
         if (request.getImages() != null) {
             for (String url : request.getImages()) {
-                PromotionImage img = new PromotionImage();
+                PublicationImage img = new PublicationImage();
                 img.setImageUrl(url);
-                img.setPromotion(promotion);
+                img.setPublication(publication);
                 imageRepository.save(img);
             }
         }
 
-        return toDTO(promotionRepository.findById(promotion.getId()).orElse(promotion));
+        return toDTO(publicationRepository.findById(publication.getId()).orElse(publication));
     }
 
     @Transactional
-    public PromotionDTO updatePromotion(Long id, PromotionUpdateRequest request) {
-        Promotion promotion = findById(id);
+    public PublicationDTO updatePublication(Long id, PublicationUpdateRequest request) {
+        Publication publication = findById(id);
 
-        if (request.getTitle() != null) promotion.setTitle(request.getTitle());
-        if (request.getDescription() != null) promotion.setDescription(request.getDescription());
-        if (request.getPrice() != null) promotion.setPrice(request.getPrice());
-        if (request.getOriginalPrice() != null) promotion.setOriginalPrice(request.getOriginalPrice());
-        if (request.getDiscount() != null) promotion.setDiscount(request.getDiscount());
-        if (request.getWhatsappMessage() != null) promotion.setWhatsappMessage(request.getWhatsappMessage());
-        if (request.getIsNew() != null) promotion.setIsNew(request.getIsNew());
+        if (request.getTitle() != null) publication.setTitle(request.getTitle());
+        if (request.getDescription() != null) publication.setDescription(request.getDescription());
+        if (request.getPrice() != null) publication.setPrice(request.getPrice());
+        if (request.getOriginalPrice() != null) publication.setOriginalPrice(request.getOriginalPrice());
+        if (request.getDiscount() != null) publication.setDiscount(request.getDiscount());
+        if (request.getWhatsappMessage() != null) publication.setWhatsappMessage(request.getWhatsappMessage());
+        if (request.getIsNew() != null) publication.setIsNew(request.getIsNew());
 
         if (request.getTags() != null) {
             Set<Tag> tags = resolveOrCreateTags(request.getTags());
-            promotion.setTags(tags);
+            publication.setTags(tags);
         }
 
         if (request.getImages() != null) {
-            promotion.getImages().clear();
-            promotionRepository.save(promotion);
+            publication.getImages().clear();
+            publicationRepository.save(publication);
             for (String url : request.getImages()) {
-                PromotionImage img = new PromotionImage();
+                PublicationImage img = new PublicationImage();
                 img.setImageUrl(url);
-                img.setPromotion(promotion);
+                img.setPublication(publication);
                 imageRepository.save(img);
             }
         }
 
-        return toDTO(promotionRepository.save(promotion));
+        return toDTO(publicationRepository.save(publication));
     }
 
     @Transactional
-    public void deletePromotion(Long id) {
-        Promotion promotion = findById(id);
+    public void deletePublication(Long id) {
+        Publication publication = findById(id);
         // Limpiar archivos locales de imágenes
-        for (PromotionImage img : promotion.getImages()) {
+        for (PublicationImage img : publication.getImages()) {
             fileStorageService.deleteIfLocal(img.getImageUrl());
         }
-        promotionRepository.delete(promotion);
+        publicationRepository.delete(publication);
     }
 
     @Transactional
-    public void deleteComment(Long promotionId, Long commentId) {
+    public void deleteComment(Long publicationId, Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comentario no encontrado"));
-        if (!comment.getPromotion().getId().equals(promotionId)) {
+        if (!comment.getPublication().getId().equals(publicationId)) {
             throw new IllegalArgumentException("El comentario no pertenece a esta promoción");
         }
         commentRepository.delete(comment);
@@ -205,8 +209,8 @@ public class PromotionService {
 
     // === HELPERS ===
 
-    private Promotion findById(Long id) {
-        return promotionRepository.findById(id)
+    private Publication findById(Long id) {
+        return publicationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Promoción no encontrada con ID: " + id));
     }
 
@@ -225,8 +229,8 @@ public class PromotionService {
         return tags;
     }
 
-    private PromotionDTO toDTO(Promotion p) {
-        PromotionDTO dto = new PromotionDTO();
+    private PublicationDTO toDTO(Publication p) {
+        PublicationDTO dto = new PublicationDTO();
         dto.setId(p.getId());
         dto.setTitle(p.getTitle());
         dto.setDescription(p.getDescription());
@@ -236,12 +240,13 @@ public class PromotionService {
         dto.setWhatsappMessage(p.getWhatsappMessage());
         dto.setIsNew(p.getIsNew());
         dto.setLikes(p.getLikes());
+        dto.setAuthor(p.getUser() != null ? p.getUser().getName() : "AutoKeys");
         dto.setCreatedAt(p.getCreatedAt() != null ? p.getCreatedAt().toString() : null);
         dto.setUpdatedAt(p.getUpdatedAt() != null ? p.getUpdatedAt().toString() : null);
 
         // Images
         dto.setImages(p.getImages().stream()
-                .map(PromotionImage::getImageUrl)
+                .map(PublicationImage::getImageUrl)
                 .collect(Collectors.toList()));
 
         // Tags
@@ -263,3 +268,4 @@ public class PromotionService {
         return dto;
     }
 }
+

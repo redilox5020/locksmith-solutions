@@ -1,4 +1,4 @@
-package com.todoteg.cerrajeria.model;
+﻿package com.todoteg.cerrajeria.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -7,11 +7,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "ck_promotion_image")
+@Table(name = "ck_publication_image")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PromotionImage {
+public class PublicationImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +22,7 @@ public class PromotionImage {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "promotion_id", nullable = false)
-    private Promotion promotion;
+    @JoinColumn(name = "publication_id", nullable = false)
+    private Publication publication;
+
 }

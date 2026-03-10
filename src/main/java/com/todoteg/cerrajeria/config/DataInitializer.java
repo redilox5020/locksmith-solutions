@@ -1,4 +1,4 @@
-package com.todoteg.cerrajeria.config;
+﻿package com.todoteg.cerrajeria.config;
 
 import com.todoteg.cerrajeria.model.*;
 import com.todoteg.cerrajeria.repository.*;
@@ -18,8 +18,8 @@ import java.util.Set;
 public class DataInitializer implements CommandLineRunner {
 
     private final UserProfileRepository userRepository;
-    private final PromotionRepository promotionRepository;
-    private final PromotionImageRepository imageRepository;
+    private final PublicationRepository publicationRepository;
+    private final PublicationImageRepository imageRepository;
     private final TagRepository tagRepository;
     private final CommentRepository commentRepository;
     private final VideoReelRepository videoRepository;
@@ -65,8 +65,8 @@ public class DataInitializer implements CommandLineRunner {
         Tag tagChapas = createTag("chapas");
         Tag tagUrgente = createTag("urgente");
 
-        // === Promotions ===
-        Promotion p1 = createPromotion(
+        // === Publications ===
+        Publication p1 = createPublication(
             "🔥 Duplicado de Llave con Chip",
             "¡Promoción del mes! Duplicamos tu llave con chip para cualquier marca de vehículo. Incluye programación y garantía de 6 meses.",
             "$105.000", "$150.000", "30% OFF",
@@ -79,7 +79,7 @@ public class DataInitializer implements CommandLineRunner {
         createComment(p1, "Juan P.", "¡Excelente servicio! Me salvaron cuando perdí mis llaves.", "2024-01-15");
         createComment(p1, "María G.", "Muy rápidos y profesionales. Recomendados 100%", "2024-01-14");
 
-        Promotion p2 = createPromotion(
+        Publication p2 = createPublication(
             "🚗 Apertura Express",
             "¿Te quedaste fuera de tu carro? Llegamos en menos de 30 minutos a cualquier punto de la ciudad. Sin daños, rápido y seguro.",
             "$50.000", null, null,
@@ -91,7 +91,7 @@ public class DataInitializer implements CommandLineRunner {
             Set.of(tagEmergencia, tag247, tagApertura)
         );
 
-        Promotion p3 = createPromotion(
+        Publication p3 = createPublication(
             "🔑 Combo Seguridad Total",
             "Incluye: Duplicado de llave con chip + Cambio de guardas + Control remoto nuevo. ¡La protección completa para tu vehículo!",
             "$262.500", "$350.000", "25% OFF",
@@ -102,7 +102,7 @@ public class DataInitializer implements CommandLineRunner {
             Set.of(tagCombo, tagSeguridad, tagOferta)
         );
 
-        Promotion p4 = createPromotion(
+        Publication p4 = createPublication(
             "⚡ Programación Rápida",
             "Programamos llaves codificadas para Toyota, Chevrolet, Mazda, Kia, Hyundai y más. Servicio express.",
             "$120.000", null, null,
@@ -112,7 +112,7 @@ public class DataInitializer implements CommandLineRunner {
             Set.of(tagProgramacion, tagMarcas, tagDomicilio)
         );
 
-        Promotion p5 = createPromotion(
+        Publication p5 = createPublication(
             "🛡️ Control Remoto Original",
             "Controles remotos originales y compatibles para todas las marcas. Programación incluida. Garantía de 1 año.",
             "$72.250", "$85.000", "15% OFF",
@@ -123,7 +123,7 @@ public class DataInitializer implements CommandLineRunner {
             Set.of(tagControl, tagOriginal, tagGarantia)
         );
 
-        Promotion p6 = createPromotion(
+        Publication p6 = createPublication(
             "🔧 Reparación de Chapas",
             "¿Tu chapa no funciona bien? La reparamos o reemplazamos en el momento. Servicio para puertas, maletero y encendido.",
             "$60.000", null, null,
@@ -156,10 +156,10 @@ public class DataInitializer implements CommandLineRunner {
         return tagRepository.save(tag);
     }
 
-    private Promotion createPromotion(String title, String desc, String price, String originalPrice,
+    private Publication createPublication(String title, String desc, String price, String originalPrice,
                                        String discount, String whatsappMsg, boolean isNew, int likes,
                                        List<String> imageUrls, Set<Tag> tags) {
-        Promotion p = new Promotion();
+        Publication p = new Publication();
         p.setTitle(title);
         p.setDescription(desc);
         p.setPrice(price);
@@ -169,33 +169,34 @@ public class DataInitializer implements CommandLineRunner {
         p.setIsNew(isNew);
         p.setLikes(likes);
         p.setTags(tags);
-        p = promotionRepository.save(p);
+        p = publicationRepository.save(p);
 
         for (String url : imageUrls) {
-            PromotionImage img = new PromotionImage();
+            PublicationImage img = new PublicationImage();
             img.setImageUrl(url);
-            img.setPromotion(p);
+            img.setPublication(p);
             imageRepository.save(img);
         }
 
         return p;
     }
 
-    private void createComment(Promotion promotion, String author, String text, String date) {
+    private void createComment(Publication publication, String author, String text, String date) {
         Comment c = new Comment();
         c.setAuthor(author);
         c.setText(text);
         c.setDate(date);
-        c.setPromotion(promotion);
+        c.setPublication(publication);
         commentRepository.save(c);
     }
 
-    private void createVideoReel(String videoUrl, String thumbnailUrl, String username, Promotion promotion) {
+    private void createVideoReel(String videoUrl, String thumbnailUrl, String username, Publication publication) {
         VideoReel v = new VideoReel();
         v.setVideoUrl(videoUrl);
         v.setThumbnailUrl(thumbnailUrl);
         v.setUsername(username);
-        v.setPromotion(promotion);
+        v.setPublication(publication);
         videoRepository.save(v);
     }
 }
+

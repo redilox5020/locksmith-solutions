@@ -1,4 +1,4 @@
-package com.todoteg.cerrajeria.dto;
+﻿package com.todoteg.cerrajeria.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +12,7 @@ public class VideoReelDTO {
     private String videoUrl;
     private String thumbnailUrl;
     private String username;
-    private Long promotionId;
+    private Long publicationId;
     private String createdAt;
 }
+

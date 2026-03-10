@@ -1,8 +1,8 @@
-package com.todoteg.cerrajeria.controller;
+﻿package com.todoteg.cerrajeria.controller;
 
 import com.todoteg.cerrajeria.dto.*;
 import com.todoteg.cerrajeria.service.FileStorageService;
-import com.todoteg.cerrajeria.service.PromotionService;
+import com.todoteg.cerrajeria.service.PublicationService;
 import com.todoteg.cerrajeria.service.VideoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import java.util.Map;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
-    private final PromotionService promotionService;
+    private final PublicationService publicationService;
     private final VideoService videoService;
     private final FileStorageService fileStorageService;
 
@@ -38,31 +38,34 @@ public class AdminController {
         return ResponseEntity.ok(Map.of("url", url));
     }
 
-    // ===== PROMOTIONS MANAGEMENT =====
+    // ===== PUBLICATIONS MANAGEMENT =====
 
-    @PostMapping("/promotions")
-    public ResponseEntity<PromotionDTO> createPromotion(@Valid @RequestBody PromotionCreateRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(promotionService.createPromotion(request));
+    @PostMapping("/publications")
+    public ResponseEntity<PublicationDTO> createPublication(
+            @Valid @RequestBody PublicationCreateRequest request,
+            org.springframework.security.core.Authentication authentication) {
+        com.todoteg.cerrajeria.model.UserProfile user = (com.todoteg.cerrajeria.model.UserProfile) authentication.getPrincipal();
+        return ResponseEntity.status(HttpStatus.CREATED).body(publicationService.createPublication(request, user.getId()));
     }
 
-    @PutMapping("/promotions/{id}")
-    public ResponseEntity<PromotionDTO> updatePromotion(
+    @PutMapping("/publications/{id}")
+    public ResponseEntity<PublicationDTO> updatePublication(
             @PathVariable Long id,
-            @RequestBody PromotionUpdateRequest request) {
-        return ResponseEntity.ok(promotionService.updatePromotion(id, request));
+            @RequestBody PublicationUpdateRequest request) {
+        return ResponseEntity.ok(publicationService.updatePublication(id, request));
     }
 
-    @DeleteMapping("/promotions/{id}")
-    public ResponseEntity<Void> deletePromotion(@PathVariable Long id) {
-        promotionService.deletePromotion(id);
+    @DeleteMapping("/publications/{id}")
+    public ResponseEntity<Void> deletePublication(@PathVariable Long id) {
+        publicationService.deletePublication(id);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/promotions/{promotionId}/comments/{commentId}")
+    @DeleteMapping("/publications/{publicationId}/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(
-            @PathVariable Long promotionId,
+            @PathVariable Long publicationId,
             @PathVariable Long commentId) {
-        promotionService.deleteComment(promotionId, commentId);
+        publicationService.deleteComment(publicationId, commentId);
         return ResponseEntity.noContent().build();
     }
 
@@ -70,13 +73,13 @@ public class AdminController {
 
     @GetMapping("/tags")
     public ResponseEntity<List<TagDTO>> getAllTags() {
-        return ResponseEntity.ok(promotionService.getAllTags());
+        return ResponseEntity.ok(publicationService.getAllTags());
     }
 
     @PostMapping("/tags")
     public ResponseEntity<TagDTO> createTag(@RequestBody Map<String, String> body) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(promotionService.createTag(body.get("name")));
+                .body(publicationService.createTag(body.get("name")));
     }
 
     // ===== VIDEOS MANAGEMENT =====
@@ -104,3 +107,4 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 }
+
